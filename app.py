@@ -43,7 +43,7 @@ def add_employee():
     email = request.form['email']
     department = request.form['department']
     # Connect to the MySQL database using the configuration
-    conn = mysql.connector.connect(**db_config)
+    conn = mysql.connector.connect(db_config)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO employees (name, email, department) VALUES (%s, %s, %s)", (name, email, department))
     conn.commit()
