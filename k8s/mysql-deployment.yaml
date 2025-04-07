@@ -7,6 +7,8 @@ spec:
   selector:
     matchLabels:
       app: mysql
+  strategy:
+    type: Recreate  # Important for single-instance databases
   template:
     metadata:
       labels:
@@ -20,8 +22,30 @@ spec:
           value: "password"
         - name: MYSQL_DATABASE
           value: "employee_db"
+        - name: MYSQL_USER
+          value: "emsuser"  # Better than root for apps
+        - name: MYSQL_PASSWORD
+          value: "emsuser-password"  # Different from root
         ports:
         - containerPort: 3306
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        readinessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-h", "localhost"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-h", "localhost"]
+          initialDelaySeconds: 120
+          periodSeconds: 20
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim  # Requires PVC setup
+
 ---
 apiVersion: v1
 kind: Service
@@ -34,3 +58,16 @@ spec:
     - protocol: TCP
       port: 3306
       targetPort: 3306
+  clusterIP: 10.100.10.10  # Static ClusterIP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

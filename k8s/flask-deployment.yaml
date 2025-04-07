@@ -14,29 +14,29 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: your-dockerhub-username/employee-management-system
-        imagePullPolicy: IfNotPresent  # 🔥 Prevents Kubernetes from pulling from Docker Hub
+        image: 491085393737.dkr.ecr.me-central-1.amazonaws.com/flask-app:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 5001
+        - containerPort: 5000
         env:
-        - name: MYSQL_HOST
-          value: "mysql"
-        - name: MYSQL_USER
-          value: "root"
-        - name: MYSQL_PASSWORD
-          value: "password"
-        - name: MYSQL_DATABASE
-          value: "employee_db"
+        - name: DB_HOST
+          value: "mysql"  # MySQL service name
+        - name: DB_USER
+          value: "emsuser"  # User you created for the app
+        - name: DB_PASSWORD
+          value: "emsuser-password"  # Password you set
+        - name: DB_NAME
+          value: "employee_db"  # Database you created
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: flask-app
 spec:
-  type: LoadBalancer
   selector:
     app: flask-app
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 5001
+      targetPort: 5000
+  type: LoadBalancer  # Can be changed depending on your environment (e.g., ClusterIP or NodePort)
