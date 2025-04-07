@@ -42,7 +42,10 @@ def add_employee():
     name = request.form['name']
     email = request.form['email']
     department = request.form['department']
+
     # Connect to the MySQL database using the configuration
+
+
     conn = mysql.connector.connect(db_config)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO employees (name, email, department) VALUES (%s, %s, %s)", (name, email, department))
@@ -53,4 +56,8 @@ def add_employee():
     return 'Employee added successfully!'
 
 if __name__ == '__main__':
+
     app.run(debug=True)
+
+    app.run(host='0.0.0.0', port=5001, debug=True)
+
